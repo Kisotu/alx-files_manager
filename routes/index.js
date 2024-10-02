@@ -18,6 +18,7 @@ const filemanRoutes = (api) => {
   api.get('/files', FilesController.getIndex);
   api.put('/files/:id/publish', FilesController.putPublish);
   api.put('/files/:id/unpublish', FilesController.putUnpublish);
+  api.get('/files/:id/data', FilesController.getFile);
 };
 
 export default filemanRoutes;
