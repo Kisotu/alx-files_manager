@@ -14,6 +14,8 @@ const filemanRoutes = (api) => {
   api.get('/disconnect', AuthController.getDisconnect);
 
   api.post('/files', FilesController.postUpload);
+  api.get('/files/:id', FilesController.getShow);
+  api.get('/files', FilesController.getIndex);
 };
 
 export default filemanRoutes;
