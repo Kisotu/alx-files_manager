@@ -1,34 +1,28 @@
 /* eslint-disable import/no-named-as-default */
-import sha1 from 'sha1';
-import Queue from 'bull/lib/queue';
 import dbClient from '../utils/db';
-
-const userQueue = new Queue('email sending');
 
 export default class UsersController {
   static async postNew(req, res) {
-    const email = req.body ? req.body.email : null;
-    const password = req.body ? req.body.password : null;
-
+    const { email, password } = req.body;
     if (!email) {
       res.status(400).json({ error: 'Missing email' });
+      res.end();
       return;
     }
     if (!password) {
       res.status(400).json({ error: 'Missing password' });
+      res.end();
       return;
     }
-    const user = await (await dbClient.usersCollection()).findOne({ email });
-
-    if (user) {
+    const userExist = await dbClient.userExist(email);
+    if (userExist) {
       res.status(400).json({ error: 'Already exist' });
+      res.end();
       return;
     }
-    const insertionInfo = await (await dbClient.usersCollection())
-      .insertOne({ email, password: sha1(password) });
-    const userId = insertionInfo.insertedId.toString();
-
-    userQueue.add({ userId });
-    res.status(201).json({ email, id: userId });
+    const user = await dbClient.createUser(email, password);
+    const id = `${user.insertedId}`;
+    res.status(201).json({ id, email });
+    res.end();
   }
 }
